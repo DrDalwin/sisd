@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Realistic 3D Flip Book</title>
+    <title>3D Flip Book with Centered Cover</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -65,7 +65,7 @@
 </head>
 <body>
 
-    <h1>📖 Realistic 3D Flip Book</h1>
+    <h1>📖 3D Flip Book with Centered Cover</h1>
     <p>Click or use arrow keys to turn pages.</p>
 
     <div id="controls">
@@ -89,11 +89,16 @@
                 width: 800,
                 height: 600,
                 autoCenter: true,
-                display: "double", // Makes sure the pages flip properly after cover
+                display: "single", // First page alone
                 elevation: 50, // Creates a realistic shadow effect
                 when: {
                     turning: function(event, page, view) {
                         $("#page-num").text(`Page ${page}`);
+
+                        // After first page, switch to double-page mode
+                        if (page === 2) {
+                            $("#book").turn("display", "double");
+                        }
                     }
                 }
             });
