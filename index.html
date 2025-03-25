@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Realistic 3D Flip Book</title>
+    <title>Real 3D Flipbook</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -17,54 +17,56 @@
             justify-content: center;
             align-items: center;
             margin-top: 20px;
-            perspective: 2500px; /* 🔹 Adds strong 3D effect */
+            perspective: 2000px; /* Stronger 3D perspective */
         }
         #book {
             width: 800px;
             height: 600px;
-            background: white;
-            box-shadow: 5px 10px 30px rgba(0, 0, 0, 0.5);
-            transform-style: preserve-3d; /* 🔹 Enables true 3D flipping */
-            transition: transform 0.8s ease-in-out;
-            border-radius: 5px;
+            transform-style: preserve-3d;
+            transform-origin: center;
+            transition: transform 1s ease-in-out;
+            box-shadow: 10px 10px 40px rgba(0, 0, 0, 0.4);
             position: relative;
         }
         .page {
             width: 100%;
             height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
             position: absolute;
-            backface-visibility: hidden; /* 🔹 Prevents showing back of flipped pages */
-            transform-origin: left center;
+            backface-visibility: hidden;
+            transform-origin: center left;
+            transition: transform 1s ease-in-out;
             background: white;
-            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
+            box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.2);
         }
         .page img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            border-radius: 5px;
+            border-radius: 3px;
         }
-        #book .hardcover {
+        /* Hardcover Effect */
+        .hardcover {
             position: absolute;
             width: 100%;
             height: 100%;
             background: linear-gradient(120deg, #5d4037, #3e2723);
-            box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.3);
+            box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.5);
             z-index: 10;
+            border-radius: 5px;
         }
-        #book .spine {
+        /* 3D Spine Effect */
+        .spine {
             position: absolute;
-            width: 20px;
+            width: 30px;
             height: 100%;
             background: linear-gradient(90deg, #3e2723, #5d4037);
-            left: -10px;
+            left: -15px;
             top: 0;
             z-index: 5;
-            border-radius: 3px;
+            border-radius: 15px;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
         }
+        /* Controls */
         #controls {
             margin-top: 20px;
         }
@@ -85,7 +87,7 @@
 </head>
 <body>
 
-    <h1>📖 3D Flip Book</h1>
+    <h1>📖 3D Flip Book with Curved Spine</h1>
     <p>Click or use arrow keys to turn pages.</p>
 
     <div id="controls" style="display: none;">
@@ -167,13 +169,13 @@
                     display: 'double',
                     acceleration: true,
                     gradients: true,  // 🔹 Enables smooth gradient page turning
-                    elevation: 50,     // 🔹 Makes page edges lift realistically
+                    elevation: 100,     // 🔹 Adds a stronger lifting effect for realism
                     autoCenter: true,  // 🔹 Centers the book on the screen
-                    duration: 1000,    // 🔹 Slower page turn for realism
+                    duration: 1200,    // 🔹 Slower page turn for realism
                     when: {
                         turning: function (e, page) {
                             $pageNum.text(`Page ${page}`);
-                            let angle = page % 2 === 0 ? 20 : -20;
+                            let angle = page % 2 === 0 ? 15 : -15;
                             $book.css("transform", `rotateY(${angle}deg)`);
                         },
                         turned: function (e, page) {
