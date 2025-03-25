@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Real 3D Flip Book</title>
+    <title>Realistic 3D Flip Book</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -17,34 +17,23 @@
             justify-content: center;
             align-items: center;
             margin-top: 20px;
-            perspective: 2500px;
         }
         #book {
             width: 800px;
             height: 600px;
-            transform-style: preserve-3d;
-            position: relative;
-            box-shadow: 10px 10px 40px rgba(0, 0, 0, 0.4);
+            background: white;
+            box-shadow: 5px 5px 20px rgba(0, 0, 0, 0.3);
         }
         .page {
             width: 100%;
             height: 100%;
             position: absolute;
             backface-visibility: hidden;
-            transform-origin: center left;
-            transition: transform 1s ease-in-out;
-            background: white;
-            box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.2);
         }
         .page img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            border-radius: 3px;
-        }
-        .cover {
-            background: #555;
-            box-shadow: 5px 5px 20px rgba(0, 0, 0, 0.5);
         }
         /* Controls */
         #controls {
@@ -64,6 +53,8 @@
             background-color: #0056b3;
         }
     </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/turn.js/3/turn.min.js"></script>
 </head>
 <body>
 
@@ -78,51 +69,38 @@
 
     <div id="book-container">
         <div id="book">
-            <div class="page cover" id="cover">
-                <img src="page1.jpg" alt="Cover">
-            </div>
-            <div class="page" id="page2">
-                <img src="page2.jpg" alt="Page 2">
-            </div>
-            <div class="page" id="page3">
-                <img src="page3.jpg" alt="Page 3">
-            </div>
-            <!-- Add more pages as needed -->
+            <div class="page"><img src="page1.jpg" alt="Cover"></div>
+            <div class="page"><img src="page2.jpg" alt="Page 2"></div>
+            <div class="page"><img src="page3.jpg" alt="Page 3"></div>
+            <div class="page"><img src="page4.jpg" alt="Page 4"></div>
         </div>
     </div>
 
     <script>
-        let currentPage = 1;
-        const totalPages = 10; // Adjust based on your book
-        const book = document.getElementById("book");
-        const pageNum = document.getElementById("page-num");
+        $(document).ready(function() {
+            $("#book").turn({
+                width: 800,
+                height: 600,
+                autoCenter: true
+            });
 
-        function updatePage() {
-            pageNum.innerText = `Page ${currentPage}`;
-            const angle = (currentPage - 1) * -180;
-            book.style.transform = `rotateY(${angle}deg)`;
-        }
+            $("#prev").click(function() {
+                $("#book").turn("previous");
+            });
 
-        document.getElementById("next").addEventListener("click", () => {
-            if (currentPage < totalPages) {
-                currentPage++;
-                updatePage();
-            }
+            $("#next").click(function() {
+                $("#book").turn("next");
+            });
+
+            $(document).keydown(function(e) {
+                if (e.key === "ArrowLeft") $("#book").turn("previous");
+                if (e.key === "ArrowRight") $("#book").turn("next");
+            });
+
+            $("#book").bind("turning", function(event, page, view) {
+                $("#page-num").text(`Page ${page}`);
+            });
         });
-
-        document.getElementById("prev").addEventListener("click", () => {
-            if (currentPage > 1) {
-                currentPage--;
-                updatePage();
-            }
-        });
-
-        document.addEventListener("keydown", (event) => {
-            if (event.key === "ArrowRight") document.getElementById("next").click();
-            if (event.key === "ArrowLeft") document.getElementById("prev").click();
-        });
-
-        updatePage();
     </script>
 
 </body>
