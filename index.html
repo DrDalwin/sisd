@@ -8,9 +8,9 @@
         body {
             font-family: Arial, sans-serif;
             background: #f5f5f5;
+            text-align: center;
             margin: 0;
             padding: 20px;
-            text-align: center;
         }
         #book-container {
             display: flex;
@@ -69,7 +69,7 @@
         <div id="book"></div>
     </div>
 
-    <!-- Load jQuery & Turn.js from CDN -->
+    <!-- Load jQuery & Turn.js -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/turn.js/3/turn.min.js"></script>
 
@@ -79,12 +79,12 @@
             
             // CONFIGURATION
             const config = {
-                prefix: 'page',   // Prefix of images (e.g., "page1.jpg")
+                prefix: 'page',   // Filename prefix (e.g., "page1.jpg")
                 suffix: '.jpg',   // Image extension
                 startPage: 1,     // First page number
-                maxPages: 10,     // Total pages available
-                zeroPad: false,   // Set to true if your files are "page01.jpg" instead of "page1.jpg"
-                folder: './images/'  // Folder where images are stored (use '' if in root)
+                maxPages: 10,     // Adjust based on your total number of pages
+                zeroPad: false,   // Set to true if filenames are "page01.jpg" instead of "page1.jpg"
+                folder: ''  // 🔹 Root directory (do not change this!)
             };
 
             const $book = $('#book');
