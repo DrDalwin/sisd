@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Full A4 Flipbook Page</title>
+  <title>Full A4 Flipbook</title>
   <style>
-    body { margin: 0; overflow: hidden; background: #ddd; }
+    body { margin: 0; overflow: hidden; background: #111; }
     canvas { display: block; }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -17,48 +17,42 @@
   let scene, camera, renderer, pages = [], currentPage = 0;
 
   function init() {
+    // Setup
     scene = new THREE.Scene();
 
-    // A4 in centimeters: 21cm x 29.7cm => Scale to units: 1 unit = 1cm
-    const a4Width = 21;
-    const a4Height = 29.7;
+    // A4 aspect ratio = 210mm / 297mm ≈ 0.707
+    const aspectRatio = 210 / 297;
+    const pageWidth = 10; // units in 3D space
+    const pageHeight = pageWidth / aspectRatio;
 
-    // Setup camera to fit full A4
-    const aspect = window.innerWidth / window.innerHeight;
-    const fov = 45;
-    const distance = (a4Height / 2) / Math.tan((fov / 2) * (Math.PI / 180));
-    camera = new THREE.PerspectiveCamera(fov, aspect, 0.1, 1000);
-    camera.position.set(0, 0, distance + 5);
-    camera.lookAt(0, 0, 0);
+    camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.set(0, 0, 25); // Pull camera back enough to see full page
 
     renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
 
     // Lighting
-    const light = new THREE.PointLight(0xffffff, 1.2);
-    light.position.set(0, 50, 50);
-    scene.add(light);
-    scene.add(new THREE.AmbientLight(0x404040));
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
+    scene.add(ambientLight);
 
-    // Load page images
+    // Texture Loader
     const loader = new THREE.TextureLoader();
-    const pageImages = ["page1.jpg", "page2.jpg", "page3.jpg", "page4.jpg"];
+    const pageImages = ['page1.jpg', 'page2.jpg', 'page3.jpg', 'page4.jpg']; // Add your images
 
-    for (let i = 0; i < pageImages.length; i++) {
-      const texture = loader.load(pageImages[i]);
+    pageImages.forEach((img, i) => {
       const material = new THREE.MeshStandardMaterial({
-        map: texture,
+        map: loader.load(img),
         side: THREE.DoubleSide
       });
+      const geometry = new THREE.PlaneGeometry(pageWidth, pageHeight);
+      const mesh = new THREE.Mesh(geometry, material);
 
-      const geometry = new THREE.PlaneGeometry(a4Width, a4Height);
-      const page = new THREE.Mesh(geometry, material);
-      page.position.set(0, 0, -i * 0.01); // stack with slight Z-offset
-      page.rotation.y = Math.PI / 2; // start closed
-      scene.add(page);
-      pages.push(page);
-    }
+      mesh.position.set(0, 0, -i * 0.01); // stack pages
+      mesh.rotation.y = Math.PI / 2; // initially closed
+      scene.add(mesh);
+      pages.push(mesh);
+    });
 
     animate();
   }
@@ -70,12 +64,22 @@
 
   function flipPage() {
     if (currentPage < pages.length) {
-      gsap.to(pages[currentPage].rotation, { y: 0, duration: 1, ease: "power2.out" });
+      gsap.to(pages[currentPage].rotation, {
+        y: 0,
+        duration: 1,
+        ease: 'power2.out'
+      });
       currentPage++;
     }
   }
 
-  window.addEventListener("click", flipPage);
+  window.addEventListener('click', flipPage);
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+
   init();
 </script>
 
