@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D Pop-Up Book</title>
+    <title>Large 3D Flipbook</title>
     <style>
         body { margin: 0; overflow: hidden; background: #ddd; }
         canvas { display: block; }
@@ -18,39 +18,41 @@
     
     function init() {
         scene = new THREE.Scene();
-        camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.set(0, 3, 6);
+        camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 4, 10);  // Closer view for larger book
 
         renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement);
 
-        // Light
-        let light = new THREE.PointLight(0xffffff, 1.2, 100);
+        // Lights for better visibility
+        let light = new THREE.PointLight(0xffffff, 1.5, 100);
         light.position.set(5, 5, 5);
         scene.add(light);
+        let ambientLight = new THREE.AmbientLight(0x404040);
+        scene.add(ambientLight);
 
-        // Book Base (Brown Cover)
+        // Bigger Book Base (Thicker Cover)
         let bookMaterial = new THREE.MeshStandardMaterial({ color: 0x8B4513 });
-        let bookGeometry = new THREE.BoxGeometry(4, 0.3, 3);
+        let bookGeometry = new THREE.BoxGeometry(8, 0.5, 6);
         book = new THREE.Mesh(bookGeometry, bookMaterial);
         book.position.y = 0;
         scene.add(book);
 
-        // Load Textures for Pages
+        // Load Page Textures
         const loader = new THREE.TextureLoader();
-        const pageImages = ["page1.jpg", "page2.jpg", "page3.jpg", "page4.jpg"];  // Add more pages if needed
-        
-        // Pages
+        const pageImages = ["page1.jpg", "page2.jpg", "page3.jpg", "page4.jpg"];
+
+        // Pages (Bigger Size)
         for (let i = 0; i < pageImages.length; i++) {
             let pageMaterial = new THREE.MeshStandardMaterial({
                 map: loader.load(pageImages[i]), side: THREE.DoubleSide
             });
 
-            let pageGeometry = new THREE.PlaneGeometry(3.8, 2.8);
+            let pageGeometry = new THREE.PlaneGeometry(7.8, 5.8);
             let page = new THREE.Mesh(pageGeometry, pageMaterial);
-            page.position.set(0, 0.2 + i * 0.01, 0.01 * i);
-            page.rotation.y = Math.PI / 2;  // Start closed
+            page.position.set(0, 0.3 + i * 0.01, 0.01 * i);
+            page.rotation.y = Math.PI / 2;
             scene.add(page);
             pages.push(page);
         }
