@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Page Flip Book</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #ececec;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+            transition: background 0.3s;
+        }
+        #book-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 90vh;
+        }
+        #book {
+            width: 800px;
+            height: 600px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 5px 5px 20px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        .page {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+        .page img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        #controls {
+            margin-top: 20px;
+        }
+        button {
+            background: #007BFF;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            transition: 0.3s;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        #dark-mode-toggle {
+            background: #333;
+            color: white;
+        }
+        /* Dark Mode */
+        .dark-mode {
+            background: #222;
+            color: white;
+        }
+        .dark-mode #book {
+            background: #333;
+            box-shadow: 5px 5px 20px rgba(255,255,255,0.1);
+        }
+        .dark-mode button {
+            background: #444;
+            color: white;
+        }
+        .dark-mode button:hover {
+            background: #555;
+        }
+    </style>
+</head>
+<body>
+    <div id="book-container">
+        <div id="book"></div>
+    </div>
+
+    <div id="controls">
+        <button id="prev">⏪ Previous</button>
+        <span id="page-num">Page 1</span>
+        <button id="next">Next ⏩</button>
+        <button id="dark-mode-toggle">🌙 Dark Mode</button>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/turn.js/3/turn.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            const totalPages = 10; // Adjust based on available images
+
+            // Initialize book
+            $('#book').turn({
+                width: 800,
+                height: 600,
+                autoCenter: true,
+                display: 'double',
+                acceleration: true,
+                gradients: true,
+                elevation: 50,
+                pages: totalPages,
+                when: {
+                    turning: function(event, page) {
+                        $('#page-num').text(`Page ${page}`);
+                    }
+                }
+            });
+
+            // Add pages dynamically
+            for (let i = 1; i <= totalPages; i++) {
+                $('#book').turn('addPage', 
+                    $('<div class="page"><img src="page' + i + '.jpg" alt="Page ' + i + '"></div>'), i);
+            }
+
+            // Navigation Buttons
+            $('#prev').click(() => $('#book').turn('previous'));
+            $('#next').click(() => $('#book').turn('next'));
+
+            // Keyboard Navigation
+            $(document).keydown(e => {
+                if (e.key === 'ArrowLeft') $('#book').turn('previous');
+                if (e.key === 'ArrowRight') $('#book').turn('next');
+            });
+
+            // Swipe Support (for touch devices)
+            let touchStartX = 0;
+            $('#book').on('touchstart', function(e) {
+                touchStartX = e.originalEvent.touches[0].clientX;
+            });
+
+            $('#book').on('touchend', function(e) {
+                let touchEndX = e.originalEvent.changedTouches[0].clientX;
+                if (touchStartX - touchEndX > 50) {
+                    $('#book').turn('next');
+                } else if (touchEndX - touchStartX > 50) {
+                    $('#book').turn('previous');
+                }
+            });
+
+            // Dark Mode Toggle
+            $('#dark-mode-toggle').click(function() {
+                $('body').toggleClass('dark-mode');
+                $(this).text($('body').hasClass('dark-mode') ? '☀️ Light Mode' : '🌙 Dark Mode');
+            });
+        });
+    </script>
+</body>
+</html>
+
