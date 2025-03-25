@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Real 3D Flipbook</title>
+    <title>Real 3D Flip Book</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -17,16 +17,14 @@
             justify-content: center;
             align-items: center;
             margin-top: 20px;
-            perspective: 2000px; /* Stronger 3D perspective */
+            perspective: 2500px;
         }
         #book {
             width: 800px;
             height: 600px;
             transform-style: preserve-3d;
-            transform-origin: center;
-            transition: transform 1s ease-in-out;
-            box-shadow: 10px 10px 40px rgba(0, 0, 0, 0.4);
             position: relative;
+            box-shadow: 10px 10px 40px rgba(0, 0, 0, 0.4);
         }
         .page {
             width: 100%;
@@ -44,27 +42,9 @@
             object-fit: cover;
             border-radius: 3px;
         }
-        /* Hardcover Effect */
-        .hardcover {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(120deg, #5d4037, #3e2723);
-            box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.5);
-            z-index: 10;
-            border-radius: 5px;
-        }
-        /* 3D Spine Effect */
-        .spine {
-            position: absolute;
-            width: 30px;
-            height: 100%;
-            background: linear-gradient(90deg, #3e2723, #5d4037);
-            left: -15px;
-            top: 0;
-            z-index: 5;
-            border-radius: 15px;
-            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
+        .cover {
+            background: #555;
+            box-shadow: 5px 5px 20px rgba(0, 0, 0, 0.5);
         }
         /* Controls */
         #controls {
@@ -87,10 +67,10 @@
 </head>
 <body>
 
-    <h1>📖 3D Flip Book with Curved Spine</h1>
+    <h1>📖 3D Flip Book</h1>
     <p>Click or use arrow keys to turn pages.</p>
 
-    <div id="controls" style="display: none;">
+    <div id="controls">
         <button id="prev">⬅️ Previous</button>
         <span id="page-num">Page 1</span>
         <button id="next">Next ➡️</button>
@@ -98,116 +78,51 @@
 
     <div id="book-container">
         <div id="book">
-            <div class="hardcover"></div>
-            <div class="spine"></div>
+            <div class="page cover" id="cover">
+                <img src="page1.jpg" alt="Cover">
+            </div>
+            <div class="page" id="page2">
+                <img src="page2.jpg" alt="Page 2">
+            </div>
+            <div class="page" id="page3">
+                <img src="page3.jpg" alt="Page 3">
+            </div>
+            <!-- Add more pages as needed -->
         </div>
     </div>
 
-    <!-- Load jQuery & Turn.js -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/turn.js/3/turn.min.js"></script>
-
     <script>
-        $(document).ready(function () {
-            console.log("JavaScript Loaded!");
-            
-            // CONFIGURATION
-            const config = {
-                prefix: 'page',   // Filename prefix (e.g., "page1.jpg")
-                suffix: '.jpg',   // Image extension
-                startPage: 1,     // First page number
-                maxPages: 10,     // Adjust based on your total number of pages
-                zeroPad: false,   // Set to true if filenames are "page01.jpg" instead of "page1.jpg"
-                folder: ''  // 🔹 Root directory (do not change this!)
-            };
+        let currentPage = 1;
+        const totalPages = 10; // Adjust based on your book
+        const book = document.getElementById("book");
+        const pageNum = document.getElementById("page-num");
 
-            const $book = $('#book');
-            const $pageNum = $('#page-num');
-            let foundPages = [];
+        function updatePage() {
+            pageNum.innerText = `Page ${currentPage}`;
+            const angle = (currentPage - 1) * -180;
+            book.style.transform = `rotateY(${angle}deg)`;
+        }
 
-            function checkPage(pageNum) {
-                if (pageNum > config.maxPages) {
-                    if (foundPages.length > 0) {
-                        initBook();
-                    } else {
-                        console.error("❌ No pages found!");
-                        $('#book-container').html("<h2 style='color: red;'>Error: No pages found!</h2>");
-                    }
-                    return;
-                }
-
-                const numStr = config.zeroPad ? pageNum.toString().padStart(2, '0') : pageNum.toString();
-                const filename = config.folder + config.prefix + numStr + config.suffix;
-                console.log(`Checking file: ${filename}`);
-
-                const img = new Image();
-                img.onload = function () {
-                    console.log(`✅ Found: ${filename}`);
-                    foundPages.push(`
-                        <div class="page">
-                            <img src="${filename}" alt="Page ${pageNum}">
-                        </div>
-                    `);
-                    checkPage(pageNum + 1);
-                };
-                img.onerror = function () {
-                    console.warn(`⚠️ Missing: ${filename}`);
-                    checkPage(pageNum + 1);
-                };
-                img.src = filename;
+        document.getElementById("next").addEventListener("click", () => {
+            if (currentPage < totalPages) {
+                currentPage++;
+                updatePage();
             }
-
-            function initBook() {
-                console.log(`✅ Success! Found ${foundPages.length} pages.`);
-                $('#controls').show();
-                $book.append(foundPages.join(''));
-
-                // Initialize turn.js with 3D settings
-                $book.turn({
-                    width: 800,
-                    height: 600,
-                    display: 'double',
-                    acceleration: true,
-                    gradients: true,  // 🔹 Enables smooth gradient page turning
-                    elevation: 100,     // 🔹 Adds a stronger lifting effect for realism
-                    autoCenter: true,  // 🔹 Centers the book on the screen
-                    duration: 1200,    // 🔹 Slower page turn for realism
-                    when: {
-                        turning: function (e, page) {
-                            $pageNum.text(`Page ${page}`);
-                            let angle = page % 2 === 0 ? 15 : -15;
-                            $book.css("transform", `rotateY(${angle}deg)`);
-                        },
-                        turned: function (e, page) {
-                            $book.css("transform", "rotateY(0deg)");
-                        }
-                    }
-                });
-
-                // Navigation Buttons
-                $('#prev').click(() => $book.turn('previous'));
-                $('#next').click(() => $book.turn('next'));
-
-                // Arrow Key Navigation
-                $(document).keydown(e => {
-                    if (e.key === 'ArrowLeft') $book.turn('previous');
-                    if (e.key === 'ArrowRight') $book.turn('next');
-                });
-
-                // Click to flip pages
-                $book.on("click", function (event) {
-                    let center = $(this).width() / 2;
-                    if (event.pageX < center) {
-                        $book.turn('previous');
-                    } else {
-                        $book.turn('next');
-                    }
-                });
-            }
-
-            // Start Checking Pages
-            checkPage(config.startPage);
         });
+
+        document.getElementById("prev").addEventListener("click", () => {
+            if (currentPage > 1) {
+                currentPage--;
+                updatePage();
+            }
+        });
+
+        document.addEventListener("keydown", (event) => {
+            if (event.key === "ArrowRight") document.getElementById("next").click();
+            if (event.key === "ArrowLeft") document.getElementById("prev").click();
+        });
+
+        updatePage();
     </script>
 
 </body>
